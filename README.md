@@ -237,22 +237,44 @@ Running Internovo Loan Cleaner Automated Test Suite...
 
 ---
 
-## 📁 Repository File Structure
+## 📁 Clean Enterprise Repository Structure
 
 ```
-internovo assessment/
-├── index.html                           # Standalone non-technical Web UI (works offline)
-├── cleaner.js                           # Core data normalization, validation & fuzzy matching engine
-├── server.js                            # Local HTTP server (npm start)
-├── clean_cli.js                         # Headless batch processing script (npm run clean)
-├── test_validation.js                   # Automated unit test suite (npm test)
-├── create_sample_files.js               # Generates sample files
-├── Branch_Loan_Register_Sample.xlsx     # Attached raw sample Excel workbook
-├── Branch_Loan_Register_Sample.csv      # Raw CSV register
-├── Cleaned_Loan_Register_Output.xlsx    # Cleaned target format output + audit sheet
-├── Cleaned_Loan_Register_Output.csv     # Cleaned target format CSV
-├── vendor/
-│   └── xlsx.full.min.js                 # Offline bundled SheetJS library
-├── package.json                         # Node configuration & scripts
-└── README.md                            # Comprehensive documentation & walkthrough guide
+internovo-data-cleaner/
+├── index.html                           # Standalone Web Application UI (Vercel Entry Point)
+├── vercel.json                          # Vercel production hosting configuration
+├── package.json                         # Scripts & dependencies
+├── README.md                            # Complete technical documentation & walkthrough
+├── .gitignore                           # Git ignore rules
+│
+├── src/                                 # Core Production Source Code
+│   └── cleaner.js                       # Universal data cleaning & validation engine (Zero hardcoding)
+│
+├── data/                                # Input Registers & Outputs
+│   ├── sample/                          # Original sample register (attached in assessment)
+│   │   ├── Branch_Loan_Register_Sample.xlsx
+│   │   └── Branch_Loan_Register_Sample.csv
+│   ├── test/                            # Comprehensive unseen generalization test datasets
+│   │   ├── New_Test_Loan_Register.csv
+│   │   ├── New_Test_Loan_Register.xlsx
+│   │   └── Unseen_Generalization_Test.xlsx
+│   └── output/                          # Standardized cleaned CBS outputs & audit logs
+│       ├── Cleaned_Loan_Register_Output.csv
+│       ├── Cleaned_Loan_Register_Output.xlsx
+│       └── Cleaned_Loan_Register_Output_flagged_queue.csv
+│
+├── tests/                               # Automated Test Suites
+│   ├── test_validation.js               # 11 unit tests for sample dataset & business rules
+│   ├── test_generalization.js           # Tests unseen branches, dates, phones, malformed values
+│   ├── test_idempotence.js              # Verifies deterministic, stable behavior across runs
+│   └── test_engine.js                   # Visual test runner
+│
+├── scripts/                             # Utility & Automation Scripts
+│   ├── clean_cli.js                     # Headless batch CLI cleaner (`npm run clean`)
+│   ├── server.js                        # Local HTTP development server (`npm start`)
+│   ├── create_sample_files.js           # Sample dataset generator
+│   └── create_test_csv.js               # Test dataset generator
+│
+└── vendor/                              # Bundled Offline Libraries
+    └── xlsx.full.min.js                 # SheetJS library (enables 100% offline local use)
 ```

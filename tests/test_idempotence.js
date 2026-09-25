@@ -1,13 +1,15 @@
 const assert = require('assert');
+const path = require('path');
 const XLSX = require('xlsx');
-const LoanCleaner = require('./cleaner');
+const LoanCleaner = require('../src/cleaner');
 
 console.log("=================================================================");
 console.log(" RUNNING IDEMPOTENCE AND STABILITY VERIFICATION TEST");
 console.log("=================================================================\n");
 
 // Test 1: Run sample data twice
-const wb1 = XLSX.readFile('Branch_Loan_Register_Sample.xlsx');
+const samplePath = path.join(__dirname, '../data/sample/Branch_Loan_Register_Sample.xlsx');
+const wb1 = XLSX.readFile(samplePath);
 const raw1 = XLSX.utils.sheet_to_json(wb1.Sheets[wb1.SheetNames[0]]);
 
 const run1 = LoanCleaner.cleanLoanDataset(raw1);
@@ -19,7 +21,8 @@ assert.strictEqual(JSON.stringify(run1), JSON.stringify(run2), "Run 1 and Run 2 
 console.log("✓ Pass: Identical output verified across multiple runs on sample data (zero non-determinism).");
 
 // Test 2: Run unseen generalization dataset twice
-const wb2 = XLSX.readFile('Unseen_Generalization_Test.xlsx');
+const testPath = path.join(__dirname, '../data/test/New_Test_Loan_Register.xlsx');
+const wb2 = XLSX.readFile(testPath);
 const raw2 = XLSX.utils.sheet_to_json(wb2.Sheets[wb2.SheetNames[0]]);
 
 const genRun1 = LoanCleaner.cleanLoanDataset(raw2);

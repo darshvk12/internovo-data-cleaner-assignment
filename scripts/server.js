@@ -23,7 +23,7 @@ const server = http.createServer((req, res) => {
   }
 
   const safePath = path.normalize(reqPath).replace(/^(\.\.[\/\\])+/, '');
-  const filePath = path.join(__dirname, safePath);
+  const filePath = path.join(__dirname, '..', safePath);
 
   fs.stat(filePath, (err, stats) => {
     if (err || !stats.isFile()) {

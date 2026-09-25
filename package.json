@@ -2,12 +2,12 @@
   "name": "internovo-loan-cleaner",
   "version": "1.0.0",
   "description": "AI Loan Register Automation & Cleansing Portal for Internovo AI Automation Intern Task",
-  "main": "server.js",
+  "main": "src/cleaner.js",
   "scripts": {
-    "start": "node server.js",
+    "start": "node scripts/server.js",
     "build": "node -e \"console.log('Static site build complete')\"",
-    "clean": "node clean_cli.js Branch_Loan_Register_Sample.xlsx Cleaned_Loan_Register_Output.xlsx",
-    "test": "node test_validation.js"
+    "clean": "node scripts/clean_cli.js data/sample/Branch_Loan_Register_Sample.xlsx data/output/Cleaned_Loan_Register_Output.xlsx",
+    "test": "node tests/test_validation.js && node tests/test_generalization.js && node tests/test_idempotence.js"
   },
   "keywords": [
     "loan-register",
@@ -16,7 +16,7 @@
     "fintech",
     "cbs-ingestion"
   ],
-  "author": "Intern Candidate",
+  "author": "Darsh",
   "license": "ISC",
   "dependencies": {
     "xlsx": "^0.18.5"

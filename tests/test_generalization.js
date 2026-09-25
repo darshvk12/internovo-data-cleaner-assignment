@@ -1,7 +1,8 @@
 const assert = require('assert');
 const XLSX = require('xlsx');
 const fs = require('fs');
-const LoanCleaner = require('./cleaner');
+const path = require('path');
+const LoanCleaner = require('../src/cleaner');
 
 console.log("=================================================================");
 console.log(" RUNNING GENERALIZATION TEST ON UNSEEN DATASET");
@@ -63,7 +64,7 @@ const unseenData = [
 const wb = XLSX.utils.book_new();
 const ws = XLSX.utils.json_to_sheet(unseenData);
 XLSX.utils.book_append_sheet(wb, ws, "Register");
-XLSX.writeFile(wb, "Unseen_Generalization_Test.xlsx");
+XLSX.writeFile(wb, path.join(__dirname, "../data/test/Unseen_Generalization_Test.xlsx"));
 
 const results = LoanCleaner.cleanLoanDataset(unseenData);
 

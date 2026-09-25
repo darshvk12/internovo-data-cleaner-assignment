@@ -1,11 +1,13 @@
 const assert = require('assert');
 const XLSX = require('xlsx');
-const LoanCleaner = require('./cleaner');
+const path = require('path');
+const LoanCleaner = require('../src/cleaner');
 
 console.log("Running Internovo Loan Cleaner Automated Test Suite...\n");
 
 // Read sample workbook
-const wb = XLSX.readFile('Branch_Loan_Register_Sample.xlsx');
+const samplePath = path.join(__dirname, '../data/sample/Branch_Loan_Register_Sample.xlsx');
+const wb = XLSX.readFile(samplePath);
 const rawRows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);
 const results = LoanCleaner.cleanLoanDataset(rawRows);
 

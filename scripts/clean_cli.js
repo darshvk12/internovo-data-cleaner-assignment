@@ -1,10 +1,10 @@
 const fs = require('fs');
 const path = require('path');
 const XLSX = require('xlsx');
-const LoanCleaner = require('./cleaner');
+const LoanCleaner = require('../src/cleaner');
 
-const inputFile = process.argv[2] || 'Branch_Loan_Register_Sample.xlsx';
-const outputFile = process.argv[3] || 'Cleaned_Loan_Register_Output.xlsx';
+const inputFile = process.argv[2] || path.join(__dirname, '../data/sample/Branch_Loan_Register_Sample.xlsx');
+const outputFile = process.argv[3] || path.join(__dirname, '../data/output/Cleaned_Loan_Register_Output.xlsx');
 
 if (!fs.existsSync(inputFile)) {
   console.error(`Error: Input file "${inputFile}" does not exist.`);
