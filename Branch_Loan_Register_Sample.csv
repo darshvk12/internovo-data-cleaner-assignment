@@ -1,0 +1,19 @@
+Branch,Customer Name,Loan Amt,Loan Date,Phone No,Status,Notes
+Andheri,Ramesh Kumar,"₹50,000",12/03/2025,9876543210,Active,
+ANDHERI BR,Sunita Patil,45000,"March 5, 2025",+91-98765-43210,ACTIVE,
+Andheri Branch,R. Kumar,50000,12-03-2025,,active,possible duplicate of row 2?
+Andheri West,Faisal Sheikh,"Rs. 1,20,000",5-3-25,98765 43210,Closed ,
+Andheri,Priya Nair,80K,,9123456780,NPA,customer moved to Thane branch
+Borivali,Ganesh Yadav,"2,50,000",2025.03.12,9988776655,closed,
+Borivali Br.,Meena Joshi,,18/03/2025,9090909090,Active,loan amount not filled in register
+Borivali,Ganesh Yadav,250000,12/03/2025,9988776655,Closed,duplicate entry - see row 6
+Thane,Anita Deshmukh,600000,01/04/2025,9812345670,active,
+Thane,Vikram Singh,-15000,02/04/2025,9812345671,Active,amount entered wrong in register
+Thane Branch,Kavita Rao,"35,000",2025-04-05,981234abcd,ACTIVE,phone number looks wrong
+Andheri,Faisal Shaikh,120000,05/03/2025,9876500000,Closed,same as row 4? spelling differs
+Borivali,Sana Iyer,95000,30/02/2025,9765432109,Active,"date doesn't exist, check register"
+Thane,Ramesh Kumar,70000,10/04/2025,9876543210,Active,same phone as row 1 - same person?
+Andheri,Deepak Shah,40000,15/03/2025,,npa,
+Borivali,Nisha Verma,"1,10,000",20-03-2025,9871122334,Active,
+Andheri,,60000,22/03/2025,9822334455,Active,customer name missing in register
+Thane,Kiran Bhosle,55000,2026.09.01,9833445566,Active,date looks like it's in the future

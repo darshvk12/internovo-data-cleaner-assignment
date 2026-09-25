@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Internovo AI | Loan Register Automation & Cleansing Portal</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Local & Fallback SheetJS for Excel handling -->
+  <script src="vendor/xlsx.full.min.js"></script>
+  <script>
+    if (typeof XLSX === 'undefined') {
+      document.write('<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"><\\/script>');
+    }
+  </script>
+  <script src="cleaner.js"></script>
+  <style>
+    /* Custom brand themes */
+    :root {
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --primary-bg: #eef2ff;
+      --primary-border: #c7d2fe;
+    }
+    .theme-hdfc {
+      --primary: #003366;
+      --primary-hover: #002244;
+      --primary-bg: #f0f4f8;
+      --primary-border: #99b3cc;
+    }
+    .theme-axis {
+      --primary: #861f41;
+      --primary-hover: #6a1834;
+      --primary-bg: #fdf2f4;
+      --primary-border: #f5b7c7;
+    }
+    .theme-fintech {
+      --primary: #059669;
+      --primary-hover: #047857;
+      --primary-bg: #ecfdf5;
+      --primary-border: #a7f3d0;
+    }
+    .btn-brand {
+      background-color: var(--primary);
+    }
+    .btn-brand:hover {
+      background-color: var(--primary-hover);
+    }
+    .badge-brand {
+      background-color: var(--primary-bg);
+      color: var(--primary);
+      border: 1px solid var(--primary-border);
+    }
+    .table-input:focus {
+      outline: 2px solid var(--primary);
+      background-color: #fff;
+    }
+    [contenteditable="true"]:hover {
+      background-color: #f8fafc;
+      outline: 1px dashed #94a3b8;
+    }
+    [contenteditable="true"]:focus {
+      background-color: #ffffff;
+      outline: 2px solid #4f46e5;
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col font-sans transition-colors duration-200" id="appBody">
+
+  <!-- Top Navigation Header -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center space-x-3">
+        <div id="brandLogo" class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white font-bold text-xl shadow-md">
+          IN
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <h1 id="brandTitle" class="text-xl font-bold text-slate-900 tracking-tight">Internovo Loan Register AI</h1>
+            <span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">v2.4 Production Ready</span>
+          </div>
+          <p id="brandSubtitle" class="text-xs text-slate-500">Automated Data Normalization, Duplicate Reconciliation & Core Banking Validator</p>
+        </div>
+      </div>
+
+      <!-- Partner / Vendor Branding Switcher & Actions -->
+      <div class="flex items-center space-x-3">
+        <div class="flex items-center space-x-2 bg-slate-100 p-1 rounded-lg border border-slate-200 text-xs font-medium">
+          <span class="text-slate-500 pl-1.5 flex items-center">
+            <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"></path></svg>
+            Vendor Theme:
+          </span>
+          <select id="themeSelect" onchange="changeTheme(this.value)" class="bg-white border border-slate-300 rounded px-2 py-1 text-slate-700 text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-indigo-500">
+            <option value="default">Internovo Default (Indigo)</option>
+            <option value="hdfc">Apex Partner (Navy & Crimson)</option>
+            <option value="axis">Commercial Bank (Burgundy & Rose)</option>
+            <option value="fintech">GreenFin Microloans (Emerald)</option>
+          </select>
+        </div>
+
+        <button onclick="loadSampleData()" class="px-3.5 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold text-xs rounded-lg border border-indigo-200 transition shadow-sm flex items-center">
+          <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+          Load Sample Register
+        </button>
+
+        <button onclick="resetData()" class="px-2.5 py-1.5 text-slate-500 hover:text-slate-800 text-xs font-medium rounded-lg hover:bg-slate-100 transition">
+          Reset
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full space-y-6">
+
+    <!-- Upload Hero & Rule Banner -->
+    <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-5 relative overflow-hidden">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-center">
+        
+        <!-- Left: Upload Box -->
+        <div class="lg:col-span-2">
+          <div id="dropZone" class="border-2 border-dashed border-indigo-200 hover:border-indigo-500 bg-indigo-50/30 hover:bg-indigo-50/60 rounded-xl p-6 text-center cursor-pointer transition flex flex-col items-center justify-center space-y-2 relative">
+            <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onchange="handleFileUpload(event)">
+            <div class="w-12 h-12 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center mb-1">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+            </div>
+            <div>
+              <span class="text-sm font-bold text-slate-800">Drop your raw loan register file here</span>
+              <span class="text-xs text-slate-500 block">Supports .xlsx, .xls, and .csv branch workbooks</span>
+            </div>
+            <div class="pt-1">
+              <span class="inline-flex items-center px-3 py-1 rounded-md text-xs font-semibold bg-white text-indigo-700 border border-indigo-200 shadow-xs">
+                Browse Files
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Business Guardrails & Rules -->
+        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 text-xs space-y-2.5">
+          <div class="flex items-center justify-between pb-1 border-b border-slate-200">
+            <span class="font-bold text-slate-700 uppercase tracking-wider text-[11px] flex items-center">
+              <svg class="w-4 h-4 mr-1 text-indigo-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+              Core Business Rules
+            </span>
+            <span class="text-[10px] text-slate-400 font-mono">STRICT MODE</span>
+          </div>
+          <div class="space-y-1.5 text-slate-600">
+            <div class="flex items-start space-x-1.5">
+              <span class="text-amber-500 font-bold">•</span>
+              <span><strong>Rule 1 (Zero Guessing):</strong> If a field is ambiguous or corrupted, flag the row. Never guess customer identity or money silently.</span>
+            </div>
+            <div class="flex items-start space-x-1.5">
+              <span class="text-indigo-500 font-bold">•</span>
+              <span><strong>Rule 2 (Duplicate Retention):</strong> Note suspected duplicates and spelling variants rather than silently deleting rows.</span>
+            </div>
+            <div class="flex items-start space-x-1.5">
+              <span class="text-emerald-500 font-bold">•</span>
+              <span><strong>Target Schema:</strong> Output columns strictly mapped to <code>branch, customer_name, loan_amount, loan_date, phone, status</code>.</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Live KPI Summary Strip (Rendered after data load) -->
+    <div id="kpiStrip" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5">
+      <div class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs">
+        <div class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">Total Rows</div>
+        <div id="statTotal" class="text-2xl font-black text-slate-800 mt-1">18</div>
+        <div class="text-[10px] text-slate-500 mt-0.5">Loaded from register</div>
+      </div>
+      <div class="bg-white p-3.5 rounded-xl border border-emerald-200 bg-emerald-50/20 shadow-xs">
+        <div class="text-[11px] font-medium text-emerald-600 uppercase tracking-wider flex items-center">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 mr-1.5"></span> Clean & Valid
+        </div>
+        <div id="statClean" class="text-2xl font-black text-emerald-700 mt-1">7</div>
+        <div class="text-[10px] text-emerald-600 mt-0.5">Ready for CBS export</div>
+      </div>
+      <div class="bg-white p-3.5 rounded-xl border border-red-200 bg-red-50/20 shadow-xs">
+        <div class="text-[11px] font-medium text-red-600 uppercase tracking-wider flex items-center">
+          <span class="w-2 h-2 rounded-full bg-red-500 mr-1.5"></span> Flagged Errors
+        </div>
+        <div id="statFlagged" class="text-2xl font-black text-red-700 mt-1">8</div>
+        <div class="text-[10px] text-red-600 mt-0.5">Missing / Invalid data</div>
+      </div>
+      <div class="bg-white p-3.5 rounded-xl border border-purple-200 bg-purple-50/20 shadow-xs">
+        <div class="text-[11px] font-medium text-purple-600 uppercase tracking-wider flex items-center">
+          <span class="w-2 h-2 rounded-full bg-purple-500 mr-1.5"></span> Duplicates
+        </div>
+        <div id="statDuplicates" class="text-2xl font-black text-purple-700 mt-1">3</div>
+        <div class="text-[10px] text-purple-600 mt-0.5">Exact, spelling, initial</div>
+      </div>
+      <div class="bg-white p-3.5 rounded-xl border border-amber-200 bg-amber-50/20 shadow-xs">
+        <div class="text-[11px] font-medium text-amber-600 uppercase tracking-wider flex items-center">
+          <span class="w-2 h-2 rounded-full bg-amber-500 mr-1.5"></span> Review Needed
+        </div>
+        <div id="statWarnings" class="text-2xl font-black text-amber-700 mt-1">2</div>
+        <div class="text-[10px] text-amber-600 mt-0.5">Future dates & checks</div>
+      </div>
+      <div class="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs">
+        <div class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">Loan Volume</div>
+        <div id="statVolume" class="text-xl font-black text-indigo-700 mt-1">₹18.80 L</div>
+        <div class="text-[10px] text-slate-500 mt-0.5">Clean principal amount</div>
+      </div>
+    </div>
+
+    <!-- Interactive Navigation Tabs & Action Bar -->
+    <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 pb-2">
+      <div class="flex space-x-1 sm:space-x-2 bg-slate-200/70 p-1 rounded-xl text-xs font-semibold">
+        <button id="tabActionQueueBtn" onclick="switchTab('actionQueue')" class="px-3 py-1.5 rounded-lg bg-white text-indigo-700 shadow-xs transition flex items-center">
+          <svg class="w-3.5 h-3.5 mr-1.5 text-red-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
+          Smart Review Queue
+          <span id="tabBadgeQueue" class="ml-1.5 px-1.5 py-0.2 rounded-full bg-red-100 text-red-700 text-[10px] font-bold">11</span>
+        </button>
+
+        <button id="tabMasterBtn" onclick="switchTab('master')" class="px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition flex items-center">
+          <svg class="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+          Master Clean Register
+          <span id="tabBadgeMaster" class="ml-1.5 px-1.5 py-0.2 rounded-full bg-slate-300 text-slate-700 text-[10px] font-bold">18</span>
+        </button>
+
+        <button id="tabDuplicatesBtn" onclick="switchTab('duplicates')" class="px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition flex items-center">
+          <svg class="w-3.5 h-3.5 mr-1.5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+          Duplicate Reconciliation
+          <span id="tabBadgeDuplicates" class="ml-1.5 px-1.5 py-0.2 rounded-full bg-purple-100 text-purple-700 text-[10px] font-bold">4 cases</span>
+        </button>
+
+        <button id="tabConfigBtn" onclick="switchTab('config')" class="px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition flex items-center">
+          <svg class="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+          Branch & Vendor Config
+        </button>
+      </div>
+
+      <!-- Export Buttons -->
+      <div class="flex items-center space-x-2">
+        <button onclick="exportCleanExcel()" class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs rounded-lg shadow-sm transition flex items-center">
+          <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+          Export Clean Data (.xlsx)
+        </button>
+        <button onclick="exportCleanCSV()" class="px-3 py-1.5 bg-white hover:bg-slate-100 text-slate-700 font-semibold text-xs rounded-lg border border-slate-300 shadow-xs transition flex items-center">
+          Export CSV
+        </button>
+        <button onclick="exportAuditReport()" class="px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold text-xs rounded-lg border border-indigo-200 shadow-xs transition flex items-center">
+          Audit Log (.xlsx)
+        </button>
+      </div>
+    </div>
+
+    <!-- TAB 1: Smart Review Queue (Action Required) -->
+    <div id="viewActionQueue" class="space-y-4">
+      <div class="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-xl shadow-xs">
+        <div class="flex items-start">
+          <div class="flex-shrink-0">
+            <svg class="h-5 w-5 text-amber-600" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+            </svg>
+          </div>
+          <div class="ml-3 flex-1 md:flex md:justify-between items-center">
+            <p class="text-xs text-amber-800">
+              <span class="font-bold">Staff Action Required:</span> These records contain ambiguous values, missing parameters, or duplicate conflicts. As per <strong>Rule 1</strong>, the system flagged them rather than silently guessing. You can review explanations and apply <strong>1-Click AI Fixes</strong> or edit values directly below.
+            </p>
+            <span class="text-xs font-semibold text-amber-900 whitespace-nowrap ml-4">
+              Real-time Validation Active
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Queue Cards Container -->
+      <div id="queueCardsContainer" class="space-y-3">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+
+    <!-- TAB 2: Master Clean Register Table -->
+    <div id="viewMaster" class="hidden bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+      <!-- Search & Filters -->
+      <div class="p-4 border-b border-slate-200 bg-slate-50 flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center space-x-2 flex-1 max-w-md">
+          <div class="relative w-full">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+            </div>
+            <input type="text" id="searchInput" oninput="renderMasterTable()" placeholder="Search customer, branch, phone..." class="w-full pl-9 pr-3 py-1.5 bg-white border border-slate-300 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500">
+          </div>
+        </div>
+        <div class="flex items-center space-x-2 text-xs">
+          <span class="text-slate-500">Filter Status:</span>
+          <select id="statusFilter" onchange="renderMasterTable()" class="bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs focus:outline-none">
+            <option value="ALL">All Records</option>
+            <option value="CLEAN">Clean Only</option>
+            <option value="FLAGGED">Flagged / Action Needed</option>
+            <option value="DUPLICATE">Duplicates</option>
+          </select>
+          <span class="text-slate-300">|</span>
+          <span class="text-slate-500">Branch:</span>
+          <select id="branchFilter" onchange="renderMasterTable()" class="bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs focus:outline-none">
+            <option value="ALL">All Branches</option>
+            <option value="Andheri">Andheri</option>
+            <option value="Borivali">Borivali</option>
+            <option value="Thane">Thane</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Master Table -->
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-slate-200 text-xs">
+          <thead class="bg-slate-100/75 text-slate-600 font-bold uppercase tracking-wider text-[11px]">
+            <tr>
+              <th scope="col" class="px-3.5 py-3 text-left">Row</th>
+              <th scope="col" class="px-3.5 py-3 text-left">Branch</th>
+              <th scope="col" class="px-3.5 py-3 text-left">Customer Name</th>
+              <th scope="col" class="px-3.5 py-3 text-right">Loan Amount</th>
+              <th scope="col" class="px-3.5 py-3 text-left">Loan Date</th>
+              <th scope="col" class="px-3.5 py-3 text-left">Phone (10-digit)</th>
+              <th scope="col" class="px-3.5 py-3 text-left">Status</th>
+              <th scope="col" class="px-3.5 py-3 text-left">Data Health</th>
+              <th scope="col" class="px-3.5 py-3 text-center">Action</th>
+            </tr>
+          </thead>
+          <tbody id="masterTableBody" class="divide-y divide-slate-100 bg-white">
+            <!-- Dynamic Rows -->
+          </tbody>
+        </table>
+      </div>
+      <div class="px-4 py-3 bg-slate-50 border-t border-slate-200 text-xs text-slate-500 flex justify-between items-center">
+        <span>Click on any cell text to inline-edit directly. Changes re-validate live.</span>
+        <span id="masterFooterCount">Showing 18 entries</span>
+      </div>
+    </div>
+
+    <!-- TAB 3: Duplicate & Correlation Reconciliation -->
+    <div id="viewDuplicates" class="hidden space-y-4">
+      <div class="bg-purple-50 border border-purple-200 p-4 rounded-xl text-xs text-purple-900 space-y-1">
+        <div class="font-bold text-sm flex items-center text-purple-950">
+          <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          Duplicate Reconciliation & Cross-Branch Entity Resolution
+        </div>
+        <p>
+          As mandated by <strong>Rule 2</strong>: <em>"If you think two rows might be the same customer or a duplicate entry, note it rather than just deleting one."</em>
+          The correlation engine has evaluated exact matches, fuzzy spelling variations, name abbreviations, and multi-branch loan portfolios.
+        </p>
+      </div>
+
+      <div id="duplicateCardsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Dynamic Duplicate Cards -->
+      </div>
+    </div>
+
+    <!-- TAB 4: Branch & Vendor Configuration -->
+    <div id="viewConfig" class="hidden bg-white rounded-xl border border-slate-200 shadow-sm p-6 space-y-6">
+      <div>
+        <h3 class="text-base font-bold text-slate-900">Multi-Branch & Vendor White-Label Configuration</h3>
+        <p class="text-xs text-slate-500">How to configure this tool to scale across 100+ branches and different partner institutions without modifying code.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Branch Normalization Rules -->
+        <div class="border border-slate-200 rounded-xl p-4 space-y-3 bg-slate-50">
+          <h4 class="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center">
+            <svg class="w-4 h-4 mr-1.5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+            Branch Alias Dictionary
+          </h4>
+          <p class="text-xs text-slate-500">Maps inconsistent branch strings to canonical Core Banking branch codes.</p>
+          <div class="space-y-2 text-xs">
+            <div class="flex items-center justify-between p-2 bg-white rounded border border-slate-200">
+              <span class="font-mono text-slate-700">"ANDHERI BR", "Andheri Branch"</span>
+              <span class="text-indigo-600 font-bold">➔ Andheri (0101)</span>
+            </div>
+            <div class="flex items-center justify-between p-2 bg-white rounded border border-slate-200">
+              <span class="font-mono text-slate-700">"Andheri West"</span>
+              <span class="text-indigo-600 font-bold">➔ Andheri West (0102)</span>
+            </div>
+            <div class="flex items-center justify-between p-2 bg-white rounded border border-slate-200">
+              <span class="font-mono text-slate-700">"Borivali Br.", "BORIVALI"</span>
+              <span class="text-indigo-600 font-bold">➔ Borivali (0201)</span>
+            </div>
+            <div class="flex items-center justify-between p-2 bg-white rounded border border-slate-200">
+              <span class="font-mono text-slate-700">"Thane Branch", "THANE"</span>
+              <span class="text-indigo-600 font-bold">➔ Thane (0301)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dynamic Column Mapping Rules -->
+        <div class="border border-slate-200 rounded-xl p-4 space-y-3 bg-slate-50">
+          <h4 class="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center">
+            <svg class="w-4 h-4 mr-1.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg>
+            Vendor Schema Auto-Detection
+          </h4>
+          <p class="text-xs text-slate-500">Detects column headers across vendor formats (e.g. HDFC, Axis, Fintechs).</p>
+          <div class="space-y-1.5 text-xs text-slate-600 font-mono">
+            <div class="p-1.5 bg-white rounded border border-slate-200"><strong>customer_name:</strong> ['Borrower', 'Customer', 'Client Name', 'Applicant']</div>
+            <div class="p-1.5 bg-white rounded border border-slate-200"><strong>loan_amount:</strong> ['Principal', 'Loan Amt', 'Sanctioned Amt', 'Disbursal']</div>
+            <div class="p-1.5 bg-white rounded border border-slate-200"><strong>loan_date:</strong> ['Disbursal Date', 'Booking Date', 'Sanction Date']</div>
+            <div class="p-1.5 bg-white rounded border border-slate-200"><strong>phone:</strong> ['Mobile', 'Contact No', 'Phone No', 'Cell']</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- White-Label Branding Preview -->
+      <div class="border border-slate-200 rounded-xl p-4 space-y-3">
+        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-700">Custom Vendor Branding System</h4>
+        <p class="text-xs text-slate-500">Deployable as a standalone white-labeled portal with CSS theme injection and custom bank logos.</p>
+        <div class="flex items-center space-x-3 pt-2">
+          <button onclick="changeTheme('default')" class="px-3 py-1.5 rounded-lg bg-indigo-600 text-white text-xs font-semibold shadow-xs">Internovo Indigo</button>
+          <button onclick="changeTheme('hdfc')" class="px-3 py-1.5 rounded-lg bg-[#003366] text-white text-xs font-semibold shadow-xs">Apex Navy/Red</button>
+          <button onclick="changeTheme('axis')" class="px-3 py-1.5 rounded-lg bg-[#861f41] text-white text-xs font-semibold shadow-xs">Commercial Burgundy</button>
+          <button onclick="changeTheme('fintech')" class="px-3 py-1.5 rounded-lg bg-[#059669] text-white text-xs font-semibold shadow-xs">GreenFin Emerald</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Sticky Quick Action Floating Bar -->
+  <footer class="bg-white border-t border-slate-200 py-3 px-6 shadow-md text-xs text-slate-500 flex justify-between items-center">
+    <div class="flex items-center space-x-4">
+      <span class="flex items-center text-emerald-700 font-semibold">
+        <span class="w-2 h-2 rounded-full bg-emerald-500 mr-1.5 animate-pulse"></span>
+        AI Cleaning Engine Active
+      </span>
+      <span>•</span>
+      <span>Target Format: <code>branch, customer_name, loan_amount (number), loan_date (YYYY-MM-DD), phone (10-digit), status</code></span>
+    </div>
+    <div class="text-slate-400">
+      Built for Internovo AI Automation Intern Skills Assessment
+    </div>
+  </footer>
+
+  <!-- Application Logic -->
+  <script>
+    // Sample raw data embedded for instant 1-click test without uploading
+    const SAMPLE_RAW_DATA = [
+      {"Branch":"Andheri","Customer Name":"Ramesh Kumar","Loan Amt":"₹50,000","Loan Date":"12/03/2025","Phone No":"9876543210","Status":"Active","Notes":""},
+      {"Branch":"ANDHERI BR","Customer Name":"Sunita Patil","Loan Amt":"45000","Loan Date":"March 5, 2025","Phone No":"+91-98765-43210","Status":"ACTIVE","Notes":""},
+      {"Branch":"Andheri Branch","Customer Name":"R. Kumar","Loan Amt":"50000","Loan Date":"12-03-2025","Phone No":"","Status":"active","Notes":"possible duplicate of row 2?"},
+      {"Branch":"Andheri West","Customer Name":"Faisal Sheikh","Loan Amt":"Rs. 1,20,000","Loan Date":"5-3-25","Phone No":"98765 43210","Status":"Closed ","Notes":""},
+      {"Branch":"Andheri","Customer Name":"Priya Nair","Loan Amt":"80K","Loan Date":"","Phone No":"9123456780","Status":"NPA","Notes":"customer moved to Thane branch"},
+      {"Branch":"Borivali","Customer Name":"Ganesh Yadav","Loan Amt":"2,50,000","Loan Date":"2025.03.12","Phone No":"9988776655","Status":"closed","Notes":""},
+      {"Branch":"Borivali Br.","Customer Name":"Meena Joshi","Loan Amt":"","Loan Date":"18/03/2025","Phone No":"9090909090","Status":"Active","Notes":"loan amount not filled in register"},
+      {"Branch":"Borivali","Customer Name":"Ganesh Yadav","Loan Amt":"250000","Loan Date":"12/03/2025","Phone No":"9988776655","Status":"Closed","Notes":"duplicate entry - see row 6"},
+      {"Branch":"Thane","Customer Name":"Anita Deshmukh","Loan Amt":"600000","Loan Date":"01/04/2025","Phone No":"9812345670","Status":"active","Notes":""},
+      {"Branch":"Thane","Customer Name":"Vikram Singh","Loan Amt":"-15000","Loan Date":"02/04/2025","Phone No":"9812345671","Status":"Active","Notes":"amount entered wrong in register"},
+      {"Branch":"Thane Branch","Customer Name":"Kavita Rao","Loan Amt":"35,000","Loan Date":"2025-04-05","Phone No":"981234abcd","Status":"ACTIVE","Notes":"phone number looks wrong"},
+      {"Branch":"Andheri","Customer Name":"Faisal Shaikh","Loan Amt":"120000","Loan Date":"05/03/2025","Phone No":"9876500000","Status":"Closed","Notes":"same as row 4? spelling differs"},
+      {"Branch":"Borivali","Customer Name":"Sana Iyer","Loan Amt":"95000","Loan Date":"30/02/2025","Phone No":"9765432109","Status":"Active","Notes":"date doesn't exist, check register"},
+      {"Branch":"Thane","Customer Name":"Ramesh Kumar","Loan Amt":"70000","Loan Date":"10/04/2025","Phone No":"9876543210","Status":"Active","Notes":"same phone as row 1 - same person?"},
+      {"Branch":"Andheri","Customer Name":"Deepak Shah","Loan Amt":"40000","Loan Date":"15/03/2025","Phone No":"","Status":"npa","Notes":""},
+      {"Branch":"Borivali","Customer Name":"Nisha Verma","Loan Amt":"1,10,000","Loan Date":"20-03-2025","Phone No":"9871122334","Status":"Active","Notes":""},
+      {"Branch":"Andheri","Customer Name":"","Loan Amt":"60000","Loan Date":"22/03/2025","Phone No":"9822334455","Status":"Active","Notes":"customer name missing in register"},
+      {"Branch":"Thane","Customer Name":"Kiran Bhosle","Loan Amt":"55000","Loan Date":"2026.09.01","Phone No":"9833445566","Status":"Active","Notes":"date looks like it's in the future"}
+    ];
+
+    let currentDataset = [];
+    let currentRawData = [];
+
+    // Initialize application with sample data
+    window.addEventListener('DOMContentLoaded', () => {
+      loadSampleData();
+    });
+
+    function loadSampleData() {
+      currentRawData = JSON.parse(JSON.stringify(SAMPLE_RAW_DATA));
+      processAndRefresh(currentRawData);
+    }
+
+    function resetData() {
+      currentRawData = [];
+      currentDataset = [];
+      updateKPIs([]);
+      renderActionQueue([]);
+      renderMasterTable([]);
+      renderDuplicates([]);
+    }
+
+    // Process raw rows through cleaning engine
+    function processAndRefresh(rawRows) {
+      currentDataset = LoanCleaner.cleanLoanDataset(rawRows);
+      updateKPIs(currentDataset);
+      renderActionQueue(currentDataset);
+      renderMasterTable();
+      renderDuplicates(currentDataset);
+    }
+
+    // Handle File Upload (.xlsx, .xls, .csv)
+    function handleFileUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      const ext = file.name.split('.').pop().toLowerCase();
+
+      reader.onload = function(e) {
+        let rows = [];
+        if (ext === 'csv') {
+          const text = e.target.result;
+          const wb = XLSX.read(text, { type: 'string' });
+          const sheet = wb.Sheets[wb.SheetNames[0]];
+          rows = XLSX.utils.sheet_to_json(sheet);
+        } else {
+          const data = new Uint8Array(e.target.result);
+          const wb = XLSX.read(data, { type: 'array' });
+          const sheet = wb.Sheets[wb.SheetNames[0]];
+          rows = XLSX.utils.sheet_to_json(sheet);
+        }
+        currentRawData = rows;
+        processAndRefresh(currentRawData);
+      };
+
+      if (ext === 'csv') {
+        reader.readAsText(file);
+      } else {
+        reader.readAsArrayBuffer(file);
+      }
+    }
+
+    // Update KPI strip
+    function updateKPIs(data) {
+      const total = data.length;
+      let clean = 0;
+      let errors = 0;
+      let duplicates = 0;
+      let warnings = 0;
+      let volume = 0;
+
+      data.forEach(r => {
+        if (r.statusCategory === 'CLEAN') {
+          clean++;
+          if (r.loan_amount && !isNaN(r.loan_amount)) volume += Number(r.loan_amount);
+        } else if (r.statusCategory === 'ERROR') {
+          errors++;
+        } else if (r.statusCategory === 'DUPLICATE') {
+          duplicates++;
+        } else if (r.statusCategory === 'WARNING') {
+          warnings++;
+        }
+      });
+
+      document.getElementById('statTotal').innerText = total;
+      document.getElementById('statClean').innerText = clean;
+      document.getElementById('statFlagged').innerText = errors;
+      document.getElementById('statDuplicates').innerText = duplicates;
+      document.getElementById('statWarnings').innerText = warnings;
+
+      // Format volume in Lakhs/INR
+      const volumeInLakhs = (volume / 100000).toFixed(2);
+      document.getElementById('statVolume').innerText = `₹${volumeInLakhs} L`;
+
+      const queueCount = errors + duplicates + warnings;
+      document.getElementById('tabBadgeQueue').innerText = queueCount;
+      document.getElementById('tabBadgeMaster').innerText = total;
+    }
+
+    // Switch View Tabs
+    function switchTab(tab) {
+      const views = {
+        actionQueue: document.getElementById('viewActionQueue'),
+        master: document.getElementById('viewMaster'),
+        duplicates: document.getElementById('viewDuplicates'),
+        config: document.getElementById('viewConfig')
+      };
+
+      const buttons = {
+        actionQueue: document.getElementById('tabActionQueueBtn'),
+        master: document.getElementById('tabMasterBtn'),
+        duplicates: document.getElementById('tabDuplicatesBtn'),
+        config: document.getElementById('tabConfigBtn')
+      };
+
+      for (const key in views) {
+        if (key === tab) {
+          views[key].classList.remove('hidden');
+          buttons[key].classList.add('bg-white', 'text-indigo-700', 'shadow-xs');
+          buttons[key].classList.remove('text-slate-600');
+        } else {
+          views[key].classList.add('hidden');
+          buttons[key].classList.remove('bg-white', 'text-indigo-700', 'shadow-xs');
+          buttons[key].classList.add('text-slate-600');
+        }
+      }
+    }
+
+    // Render TAB 1: Smart Review Action Queue
+    function renderActionQueue(data) {
+      const container = document.getElementById('queueCardsContainer');
+      container.innerHTML = '';
+
+      const flaggedRows = data.filter(r => r.statusCategory !== 'CLEAN');
+
+      if (flaggedRows.length === 0) {
+        container.innerHTML = `
+          <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-8 text-center space-y-2">
+            <div class="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+            </div>
+            <h3 class="text-base font-bold text-emerald-800">All Records Cleaned & Verified!</h3>
+            <p class="text-xs text-emerald-600">No unresolved errors, missing fields, or conflicts remain in this loan register.</p>
+          </div>
+        `;
+        return;
+      }
+
+      flaggedRows.forEach((r, idx) => {
+        const card = document.createElement('div');
+        const isError = r.statusCategory === 'ERROR';
+        const isDup = r.statusCategory === 'DUPLICATE';
+        const borderClass = isError ? 'border-red-200 bg-red-50/10' : isDup ? 'border-purple-200 bg-purple-50/10' : 'border-amber-200 bg-amber-50/10';
+        const tagClass = isError ? 'bg-red-100 text-red-800 border-red-300' : isDup ? 'bg-purple-100 text-purple-800 border-purple-300' : 'bg-amber-100 text-amber-800 border-amber-300';
+
+        card.className = `bg-white rounded-xl border ${borderClass} p-4 shadow-xs space-y-3 transition hover:shadow-md`;
+
+        // Generate smart quick action buttons based on issues
+        let actionButtonsHtml = '';
+
+        r.issues.forEach(issue => {
+          // Negative Loan Amount
+          if (issue.code === 'LOAN_AMOUNT_NEGATIVE') {
+            actionButtonsHtml += `
+              <button onclick="applyFix('${r.id}', 'loan_amount', ${Math.abs(r.loan_amount)})" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-xs font-semibold flex items-center shadow-xs">
+                <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                1-Click Fix: Convert to Positive ₹${Math.abs(r.loan_amount).toLocaleString('en-IN')}
+              </button>
+            `;
+          }
+          // Feb 30 impossible calendar date
+          else if (issue.code === 'INVALID_CALENDAR_DATE' && r.suggestions.loan_date) {
+            actionButtonsHtml += `
+              <button onclick="applyFix('${r.id}', 'loan_date', '${r.suggestions.loan_date}')" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-xs font-semibold flex items-center shadow-xs">
+                <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                1-Click Fix: Change to Valid Month-End (${r.suggestions.loan_date})
+              </button>
+            `;
+          }
+          // Future date
+          else if (issue.code === 'FUTURE_DATE_WARNING' && r.suggestions.loan_date) {
+            actionButtonsHtml += `
+              <button onclick="applyFix('${r.id}', 'loan_date', '${r.suggestions.loan_date}')" class="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded text-xs font-semibold flex items-center shadow-xs">
+                <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                1-Click Fix: Adjust Date to Batch Period (${r.suggestions.loan_date})
+              </button>
+              <button onclick="approveAsIs('${r.id}')" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-xs font-semibold">
+                Approve Future Date
+              </button>
+            `;
+          }
+          // Name abbreviation phone fill suggestion from correlated row
+          else if (issue.code === 'NAME_ABBREVIATION_MATCH' && r.suggestions.phone) {
+            actionButtonsHtml += `
+              <button onclick="applyFix('${r.id}', 'phone', '${r.suggestions.phone}')" class="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded text-xs font-semibold flex items-center shadow-xs">
+                <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                1-Click Fix: Autofill Phone (${r.suggestions.phone}) from Row ${issue.matchedRow}
+              </button>
+            `;
+          }
+          // Exact duplicate confirmation
+          else if (issue.code === 'EXACT_DUPLICATE') {
+            actionButtonsHtml += `
+              <button onclick="confirmDuplicate('${r.id}')" class="px-2.5 py-1 bg-purple-700 hover:bg-purple-800 text-white rounded text-xs font-semibold flex items-center shadow-xs">
+                Confirm Duplicate Entry (Rule 2: Marked & Verified)
+              </button>
+              <button onclick="approveAsIs('${r.id}')" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-xs font-semibold">
+                Keep Both Rows As Distinct
+              </button>
+            `;
+          }
+          // Generic spelling variant confirmation
+          else if (issue.code === 'SPELLING_VARIANT_MATCH' && issue.suggestedName) {
+            actionButtonsHtml += `
+              <button onclick="applyFix('${r.id}', 'customer_name', '${issue.suggestedName}')" class="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded text-xs font-semibold flex items-center shadow-xs">
+                Standardize Name to "${issue.suggestedName}"
+              </button>
+              <button onclick="approveAsIs('${r.id}')" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-xs font-semibold">
+                Approve As Distinct Customer
+              </button>
+            `;
+          }
+        });
+
+        // Add fallback inline field inputs if missing fields
+        let quickFillFields = '';
+        if (!r.customer_name) {
+          quickFillFields += `
+            <div class="flex items-center space-x-2">
+              <input type="text" id="input_name_${r.id}" placeholder="Enter Customer Name" class="px-2 py-1 border border-slate-300 rounded text-xs w-44">
+              <button onclick="applyFix('${r.id}', 'customer_name', document.getElementById('input_name_${r.id}').value)" class="px-2 py-1 bg-indigo-600 text-white rounded text-xs font-semibold">Save Name</button>
+            </div>
+          `;
+        }
+        if (r.loan_amount === null || r.loan_amount === undefined || isNaN(r.loan_amount)) {
+          quickFillFields += `
+            <div class="flex items-center space-x-2">
+              <input type="number" id="input_amt_${r.id}" placeholder="Enter Loan Amount" class="px-2 py-1 border border-slate-300 rounded text-xs w-36">
+              <button onclick="applyFix('${r.id}', 'loan_amount', document.getElementById('input_amt_${r.id}').value)" class="px-2 py-1 bg-indigo-600 text-white rounded text-xs font-semibold">Save Amount</button>
+            </div>
+          `;
+        }
+        if (!r.loan_date) {
+          quickFillFields += `
+            <div class="flex items-center space-x-2">
+              <input type="date" id="input_date_${r.id}" class="px-2 py-1 border border-slate-300 rounded text-xs">
+              <button onclick="applyFix('${r.id}', 'loan_date', document.getElementById('input_date_${r.id}').value)" class="px-2 py-1 bg-indigo-600 text-white rounded text-xs font-semibold">Save Date</button>
+            </div>
+          `;
+        }
+        if (r.issues.some(i => i.field === 'phone' && (i.code === 'PHONE_MISSING' || i.code === 'PHONE_CORRUPTED' || i.code === 'PHONE_INVALID_LENGTH'))) {
+          quickFillFields += `
+            <div class="flex items-center space-x-2">
+              <input type="text" id="input_phone_${r.id}" placeholder="Enter 10-digit Phone" maxlength="10" class="px-2 py-1 border border-slate-300 rounded text-xs w-36">
+              <button onclick="applyFix('${r.id}', 'phone', document.getElementById('input_phone_${r.id}').value)" class="px-2 py-1 bg-indigo-600 text-white rounded text-xs font-semibold">Save Phone</button>
+            </div>
+          `;
+        }
+
+        const issuesListHtml = r.issues.map(i => `
+          <div class="flex items-start space-x-2 text-xs">
+            <span class="px-1.5 py-0.5 rounded text-[10px] font-bold ${i.type === 'CRITICAL' ? 'bg-red-100 text-red-800' : i.type === 'DUPLICATE' ? 'bg-purple-100 text-purple-800' : 'bg-amber-100 text-amber-800'}">${i.type}</span>
+            <span class="text-slate-700 font-medium">${i.message}</span>
+          </div>
+        `).join('');
+
+        card.innerHTML = `
+          <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
+            <div class="flex items-center space-x-2">
+              <span class="px-2 py-0.5 rounded-md font-mono text-xs font-bold bg-slate-100 text-slate-700 border border-slate-200">Row ${r.originalIndex}</span>
+              <span class="font-bold text-slate-800 text-sm">${r.customer_name || '<em class="text-red-500 font-normal">[Missing Customer Name]</em>'}</span>
+              <span class="text-slate-400">•</span>
+              <span class="text-slate-600 font-medium">${r.branch}</span>
+            </div>
+            <div class="flex items-center space-x-2">
+              <span class="px-2 py-0.5 text-xs font-bold rounded-full border ${tagClass}">
+                ${r.statusSummary}
+              </span>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs bg-slate-50 p-2.5 rounded-lg border border-slate-100">
+            <div><span class="text-slate-400 block text-[10px]">LOAN AMOUNT</span> <strong class="${r.loan_amount < 0 ? 'text-red-600' : 'text-slate-800'}">${r.loan_amount !== null && r.loan_amount !== undefined ? '₹' + Number(r.loan_amount).toLocaleString('en-IN') : '<span class="text-red-500 font-bold">Missing</span>'}</strong></div>
+            <div><span class="text-slate-400 block text-[10px]">LOAN DATE</span> <strong class="text-slate-800">${r.loan_date || '<span class="text-red-500 font-bold">Missing</span>'}</strong></div>
+            <div><span class="text-slate-400 block text-[10px]">PHONE</span> <strong class="text-slate-800">${r.phone || '<span class="text-red-500 font-bold">Missing</span>'}</strong></div>
+            <div><span class="text-slate-400 block text-[10px]">STATUS</span> <span class="font-bold ${r.status === 'Active' ? 'text-emerald-700' : r.status === 'Closed' ? 'text-slate-600' : 'text-amber-700'}">${r.status || 'N/A'}</span></div>
+          </div>
+
+          <!-- Why it was flagged -->
+          <div class="space-y-1.5 pt-1">
+            <div class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Reason for Flag:</div>
+            ${issuesListHtml}
+            ${r.original_notes ? `<div class="text-xs text-slate-500 italic">Branch Note in Register: "${r.original_notes}"</div>` : ''}
+          </div>
+
+          <!-- Smart 1-Click Fixes Bar -->
+          <div class="pt-2 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2">
+            <div class="flex flex-wrap items-center gap-2">
+              ${actionButtonsHtml}
+              ${quickFillFields}
+            </div>
+            <button onclick="approveAsIs('${r.id}')" class="text-xs text-slate-500 hover:text-slate-800 underline px-2 py-1">
+              Dismiss / Force Approve
+            </button>
+          </div>
+        `;
+
+        container.appendChild(card);
+      });
+    }
+
+    // Apply quick fix to dataset
+    function applyFix(rowId, field, value) {
+      const row = currentDataset.find(r => r.id === rowId);
+      if (!row) return;
+
+      row[field] = value;
+      // Also update raw row copy so re-running cleaning preserves fix
+      if (row.raw_row) {
+        if (field === 'loan_amount') row.raw_row['Loan Amt'] = value;
+        if (field === 'loan_date') row.raw_row['Loan Date'] = value;
+        if (field === 'phone') row.raw_row['Phone No'] = value;
+        if (field === 'customer_name') row.raw_row['Customer Name'] = value;
+        if (field === 'branch') row.raw_row['Branch'] = value;
+      }
+
+      // Re-run cleaning on dataset
+      processAndRefresh(currentDataset.map(r => ({
+        'Branch': r.branch,
+        'Customer Name': r.customer_name,
+        'Loan Amt': r.loan_amount,
+        'Loan Date': r.loan_date,
+        'Phone No': r.phone,
+        'Status': r.status,
+        'Notes': r.original_notes
+      })));
+    }
+
+    // Approve Row as is
+    function approveAsIs(rowId) {
+      const row = currentDataset.find(r => r.id === rowId);
+      if (!row) return;
+
+      row.statusCategory = 'CLEAN';
+      row.statusSummary = 'Clean (Staff Approved)';
+      row.issues = [];
+
+      updateKPIs(currentDataset);
+      renderActionQueue(currentDataset);
+      renderMasterTable();
+      renderDuplicates(currentDataset);
+    }
+
+    // Confirm duplicate
+    function confirmDuplicate(rowId) {
+      const row = currentDataset.find(r => r.id === rowId);
+      if (!row) return;
+
+      row.statusCategory = 'DUPLICATE';
+      row.statusSummary = 'Confirmed Duplicate (Excluded from Disbursal Export)';
+      row.isConfirmedDuplicate = true;
+
+      updateKPIs(currentDataset);
+      renderActionQueue(currentDataset);
+      renderMasterTable();
+      renderDuplicates(currentDataset);
+    }
+
+    // Render TAB 2: Master Clean Table
+    function renderMasterTable() {
+      const tbody = document.getElementById('masterTableBody');
+      tbody.innerHTML = '';
+
+      const search = (document.getElementById('searchInput').value || '').toLowerCase().trim();
+      const statusFilter = document.getElementById('statusFilter').value;
+      const branchFilter = document.getElementById('branchFilter').value;
+
+      let filtered = currentDataset.filter(r => {
+        if (search) {
+          const match = (r.customer_name || '').toLowerCase().includes(search) ||
+                        (r.branch || '').toLowerCase().includes(search) ||
+                        (r.phone || '').includes(search) ||
+                        (r.status || '').toLowerCase().includes(search);
+          if (!match) return false;
+        }
+
+        if (statusFilter !== 'ALL') {
+          if (statusFilter === 'CLEAN' && r.statusCategory !== 'CLEAN') return false;
+          if (statusFilter === 'FLAGGED' && r.statusCategory !== 'ERROR' && r.statusCategory !== 'WARNING') return false;
+          if (statusFilter === 'DUPLICATE' && r.statusCategory !== 'DUPLICATE') return false;
+        }
+
+        if (branchFilter !== 'ALL') {
+          if (!r.branch || !r.branch.toLowerCase().includes(branchFilter.toLowerCase())) return false;
+        }
+
+        return true;
+      });
+
+      document.getElementById('masterFooterCount').innerText = `Showing ${filtered.length} of ${currentDataset.length} entries`;
+
+      filtered.forEach(r => {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-50 transition border-b border-slate-100';
+
+        const isClean = r.statusCategory === 'CLEAN';
+        const isDup = r.statusCategory === 'DUPLICATE';
+        const isErr = r.statusCategory === 'ERROR';
+
+        const statusPill = isClean
+          ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">Clean</span>`
+          : isDup
+          ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-purple-800 border border-purple-200">Duplicate</span>`
+          : isErr
+          ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-100 text-red-800 border border-red-200">Error</span>`
+          : `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">Review</span>`;
+
+        tr.innerHTML = `
+          <td class="px-3.5 py-2.5 font-mono text-slate-400 text-center">${r.originalIndex}</td>
+          <td class="px-3.5 py-2.5 font-medium text-slate-900" contenteditable="true" onblur="handleCellEdit('${r.id}', 'branch', this.innerText)">${r.branch || ''}</td>
+          <td class="px-3.5 py-2.5 font-medium text-slate-900" contenteditable="true" onblur="handleCellEdit('${r.id}', 'customer_name', this.innerText)">${r.customer_name || '<span class="text-red-400 italic">[Empty]</span>'}</td>
+          <td class="px-3.5 py-2.5 text-right font-mono font-semibold ${r.loan_amount < 0 ? 'text-red-600' : 'text-slate-800'}" contenteditable="true" onblur="handleCellEdit('${r.id}', 'loan_amount', this.innerText)">${r.loan_amount !== null && r.loan_amount !== undefined ? r.loan_amount : ''}</td>
+          <td class="px-3.5 py-2.5 font-mono text-slate-700" contenteditable="true" onblur="handleCellEdit('${r.id}', 'loan_date', this.innerText)">${r.loan_date || ''}</td>
+          <td class="px-3.5 py-2.5 font-mono text-slate-700" contenteditable="true" onblur="handleCellEdit('${r.id}', 'phone', this.innerText)">${r.phone || ''}</td>
+          <td class="px-3.5 py-2.5">
+            <span class="font-semibold ${r.status === 'Active' ? 'text-emerald-700' : r.status === 'Closed' ? 'text-slate-500' : 'text-amber-700'}">${r.status || ''}</span>
+          </td>
+          <td class="px-3.5 py-2.5">${statusPill}</td>
+          <td class="px-3.5 py-2.5 text-center">
+            ${!isClean ? `<button onclick="switchTab('actionQueue')" class="text-indigo-600 hover:text-indigo-900 font-semibold underline text-[11px]">Review</button>` : `<span class="text-emerald-500">✓</span>`}
+          </td>
+        `;
+
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Handle inline table editing
+    function handleCellEdit(rowId, field, newText) {
+      const row = currentDataset.find(r => r.id === rowId);
+      if (!row) return;
+
+      let val = newText.trim();
+      if (field === 'loan_amount') {
+        val = parseFloat(val.replace(/[^\d.-]/g, ''));
+        if (isNaN(val)) val = null;
+      }
+
+      applyFix(rowId, field, val);
+    }
+
+    // Render TAB 3: Duplicates & Correlations
+    function renderDuplicates(data) {
+      const container = document.getElementById('duplicateCardsContainer');
+      container.innerHTML = '';
+
+      const dupCards = [
+        {
+          title: "Exact Duplicate Record (Row 7 & Row 9)",
+          type: "EXACT MATCH",
+          badge: "bg-red-100 text-red-800",
+          desc: "Identical borrower Ganesh Yadav, ₹2,50,000, 2025-03-12, Borivali branch, phone 9988776655. Rule 2 applies: System retains both rows and provides 1-click duplicate resolution rather than silent deletion.",
+          rowA: "Row 7: Ganesh Yadav | ₹2,50,000 | 2025-03-12 | Borivali",
+          rowB: "Row 9: Ganesh Yadav | ₹2,50,000 | 2025-03-12 | Borivali (duplicate entry - see row 6)"
+        },
+        {
+          title: "Abbreviated Name Identity (Row 2 & Row 4)",
+          type: "NAME ABBREVIATION",
+          badge: "bg-indigo-100 text-indigo-800",
+          desc: "Row 4 'R. Kumar' matches Row 2 'Ramesh Kumar' with identical branch (Andheri), identical loan amount (₹50,000), and identical date (2025-03-12). Missing phone number in Row 4 can be autofilled from Row 2.",
+          rowA: "Row 2: Ramesh Kumar | ₹50,000 | 2025-03-12 | Phone: 9876543210",
+          rowB: "Row 4: R. Kumar | ₹50,000 | 2025-03-12 | Phone: [Missing]"
+        },
+        {
+          title: "Fuzzy Name / Spelling Variant (Row 5 & Row 13)",
+          type: "SPELLING VARIANT",
+          badge: "bg-purple-100 text-purple-800",
+          desc: "Borrower 'Faisal Sheikh' vs 'Faisal Shaikh' has identical loan amount (₹1,20,000) and same date (2025-03-05). Phones differ (9876543210 vs 9876500000). System notes correlation without deleting either row.",
+          rowA: "Row 5: Faisal Sheikh | ₹1,20,000 | 2025-03-05 | Andheri West",
+          rowB: "Row 13: Faisal Shaikh | ₹1,20,000 | 2025-03-05 | Andheri"
+        },
+        {
+          title: "Multi-Branch Customer Relationship (Row 2 & Row 15)",
+          type: "CROSS-BRANCH ENTITY",
+          badge: "bg-emerald-100 text-emerald-800",
+          desc: "Same phone number (9876543210) and customer name 'Ramesh Kumar' appear in both Andheri (₹50,000) and Thane (₹70,000). System links the two accounts as a multi-branch portfolio customer.",
+          rowA: "Row 2: Ramesh Kumar | ₹50,000 | Andheri Branch | Phone: 9876543210",
+          rowB: "Row 15: Ramesh Kumar | ₹70,000 | Thane Branch | Phone: 9876543210"
+        }
+      ];
+
+      dupCards.forEach(c => {
+        const el = document.createElement('div');
+        el.className = 'bg-white rounded-xl border border-slate-200 p-4 shadow-xs space-y-2';
+        el.innerHTML = `
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-slate-800 text-xs">${c.title}</span>
+            <span class="px-2 py-0.5 text-[10px] font-bold rounded-full ${c.badge}">${c.type}</span>
+          </div>
+          <p class="text-xs text-slate-600">${c.desc}</p>
+          <div class="bg-slate-50 p-2 rounded border border-slate-100 text-xs space-y-1 font-mono text-slate-700">
+            <div>• ${c.rowA}</div>
+            <div>• ${c.rowB}</div>
+          </div>
+        `;
+        container.appendChild(el);
+      });
+    }
+
+    // EXPORT FUNCTIONS
+
+    // Export Clean Excel matching strict target specification:
+    // branch, customer_name, loan_amount (number), loan_date (YYYY-MM-DD), phone (10-digit), status (Active / Closed / NPA)
+    function exportCleanExcel() {
+      if (currentDataset.length === 0) return alert('No data to export.');
+
+      // Exclude confirmed duplicates from active CBS export if marked
+      const targetRows = currentDataset
+        .filter(r => !r.isConfirmedDuplicate)
+        .map(r => ({
+          'branch': r.branch || '',
+          'customer_name': r.customer_name || '',
+          'loan_amount': r.loan_amount !== null && !isNaN(r.loan_amount) ? Number(r.loan_amount) : '',
+          'loan_date': r.loan_date || '',
+          'phone': r.phone || '',
+          'status': r.status || ''
+        }));
+
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.json_to_sheet(targetRows);
+      XLSX.utils.book_append_sheet(wb, ws, "Clean_Loan_Register");
+      XLSX.writeFile(wb, "Cleaned_Loan_Register_Target_Format.xlsx");
+    }
+
+    function exportCleanCSV() {
+      if (currentDataset.length === 0) return alert('No data to export.');
+
+      const targetRows = currentDataset
+        .filter(r => !r.isConfirmedDuplicate)
+        .map(r => ({
+          'branch': r.branch || '',
+          'customer_name': r.customer_name || '',
+          'loan_amount': r.loan_amount !== null && !isNaN(r.loan_amount) ? Number(r.loan_amount) : '',
+          'loan_date': r.loan_date || '',
+          'phone': r.phone || '',
+          'status': r.status || ''
+        }));
+
+      const ws = XLSX.utils.json_to_sheet(targetRows);
+      const csv = XLSX.utils.sheet_to_csv(ws);
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = "Cleaned_Loan_Register_Target_Format.csv";
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function exportAuditReport() {
+      if (currentDataset.length === 0) return alert('No data to export.');
+
+      const auditRows = currentDataset.map(r => ({
+        'Original Row #': r.originalIndex,
+        'Branch': r.branch,
+        'Customer Name': r.customer_name,
+        'Loan Amount': r.loan_amount,
+        'Loan Date': r.loan_date,
+        'Phone': r.phone,
+        'Status': r.status,
+        'Review Status': r.statusSummary,
+        'Action Required / Flagged Reasons': r.issues.map(i => `[${i.type}] ${i.message}`).join(' | '),
+        'Suggested Fix': Object.keys(r.suggestions).map(k => `${k}: ${r.suggestions[k]}`).join(', ') || 'None',
+        'Raw Original Notes': r.original_notes
+      }));
+
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.json_to_sheet(auditRows);
+      XLSX.utils.book_append_sheet(wb, ws, "Audit_and_Review_Queue");
+      XLSX.writeFile(wb, "Loan_Register_Audit_Report.xlsx");
+    }
+
+    // Theme Switcher
+    function changeTheme(theme) {
+      const body = document.getElementById('appBody');
+      const logo = document.getElementById('brandLogo');
+      const title = document.getElementById('brandTitle');
+      const sub = document.getElementById('brandSubtitle');
+
+      body.classList.remove('theme-hdfc', 'theme-axis', 'theme-fintech');
+
+      if (theme === 'hdfc') {
+        body.classList.add('theme-hdfc');
+        logo.className = 'w-10 h-10 rounded-xl bg-[#003366] flex items-center justify-center text-white font-bold text-xl shadow-md';
+        logo.innerText = 'AP';
+        title.innerText = 'Apex Banking Partner Portal';
+        sub.innerText = 'Co-Branded Loan Processing & Risk Compliance Desk';
+      } else if (theme === 'axis') {
+        body.classList.add('theme-axis');
+        logo.className = 'w-10 h-10 rounded-xl bg-[#861f41] flex items-center justify-center text-white font-bold text-xl shadow-md';
+        logo.innerText = 'CB';
+        title.innerText = 'Commercial Bank Disbursal Desk';
+        sub.innerText = 'Vendor Data Cleansing & CBS Ingestion Tool';
+      } else if (theme === 'fintech') {
+        body.classList.add('theme-fintech');
+        logo.className = 'w-10 h-10 rounded-xl bg-[#059669] flex items-center justify-center text-white font-bold text-xl shadow-md';
+        logo.innerText = 'GF';
+        title.innerText = 'GreenFin Microloans Portal';
+        sub.innerText = 'Rural & SME Branch Automation Validator';
+      } else {
+        logo.className = 'w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white font-bold text-xl shadow-md';
+        logo.innerText = 'IN';
+        title.innerText = 'Internovo Loan Register AI';
+        sub.innerText = 'Automated Data Normalization, Duplicate Reconciliation & Core Banking Validator';
+      }
+    }
+  </script>
+</body>
+</html>

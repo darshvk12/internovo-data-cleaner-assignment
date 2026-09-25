@@ -1,0 +1,18 @@
+﻿Branch,Customer Name,Loan Amt,Loan Date,Phone No,Status,Notes
+Connaught Place,Arjun Kapoor,"$ 75,000",2026-05-15,9810012345,Active,Sanctioned online
+WHITEFIELD BR,Devika Sengupta,2.5 Lakh,"October 12, 2026",+91-98200-54321,ACTIVE,
+Connaught Place,A. Kapoor,75000,2026-05-15,,active,Check if same applicant as Arjun Kapoor
+Salt Lake Branch,Sneha Roy,"Rs. 1,40,000",5-10-26,98765 11223,Closed ,Full repayment received
+Hinjewadi,Vikram Malhotra,65K,,9845012345,NPA,Borrower contactable on mobile
+Indiranagar,Rohan Verma,"3,20,000",2026.04.10,9988112233,closed,
+Indiranagar,Rohan Verma,320000,10/04/2026,9988112233,Closed,Duplicate entry of previous row
+Koramangala Office,Meera Nair,,18/05/2026,9090123456,Active,Amount column was left blank in register
+Cyber City,Kunal Shah,-45000,02/06/2026,9812309876,Active,Entered as negative in branch sheet
+Bandra West,Pooja Hegde,"90,000",2026-06-05,985001abcd,ACTIVE,Phone has letters in it
+Bandra,Puja Hegde,90000,05/06/2026,9850099999,Active,Spelling variant of Pooja Hegde?
+Cyber City,Aditya Joshi,110000,31/04/2026,9765401234,Active,April only has 30 days
+Indiranagar,Arjun Kapoor,125000,20/07/2026,9810012345,Active,Customer also has loan in Connaught Place
+Connaught Place,,85000,22/05/2026,9822001122,Active,Customer name empty in register
+Salt Lake,Tanya Sen,₹ 0,14/06/2026,9833441122,Active,Zero principal amount
+Hinjewadi,Siddharth Rao,50000,2029.01.15,9871199887,Active,Disbursal date far in future (2029)
+Bandra West,Kabir Bedi,1.2 Cr,19-05-2026,9820088776,Active,Commercial loan sanction

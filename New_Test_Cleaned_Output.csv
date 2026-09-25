@@ -1,0 +1,10 @@
+branch,customer_name,loan_amount,loan_date,phone,status
+Connaught Place,Arjun Kapoor,75000,2026-05-15,9810012345,Active
+Whitefield,Devika Sengupta,250000,2026-10-12,9820054321,Active
+Salt Lake,Sneha Roy,140000,2026-05-10,9876511223,Closed
+Indiranagar,Rohan Verma,320000,2026-04-10,9988112233,Closed
+Indiranagar,Rohan Verma,320000,2026-10-04,9988112233,Closed
+Bandra,Puja Hegde,90000,2026-05-06,9850099999,Active
+Indiranagar,Arjun Kapoor,125000,2026-07-20,9810012345,Active
+Hinjewadi,Siddharth Rao,50000,2029-01-15,9871199887,Active
+Bandra West,Kabir Bedi,12000000,2026-05-19,9820088776,Active

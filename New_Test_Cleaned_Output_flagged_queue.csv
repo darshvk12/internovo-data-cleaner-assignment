@@ -1,0 +1,9 @@
+Original Row #,Branch,Customer Name,Loan Amount,Loan Date,Phone,Status,Flag Category,Stated Reason for Flag,Suggested Resolution,Original Notes
+4,Connaught Place,A. Kapoor,75000,2026-05-15,[MISSING],Active,Flagged (Error),"[CRITICAL] Phone number is missing in register | [NOTE] Potential duplicate of Row 2: Name ""A. Kapoor"" matches ""Arjun Kapoor"" with identical branch, loan amount, and date.",phone: 9810012345,Check if same applicant as Arjun Kapoor
+6,Hinjewadi,Vikram Malhotra,65000,[MISSING],9845012345,NPA,Flagged (Error),"[INFO] Parsed shorthand multiplier ""65K"" as 65000 | [CRITICAL] Loan date is missing in register",Manual branch check needed,Borrower contactable on mobile
+9,Koramangala,Meera Nair,[MISSING],2026-05-18,9090123456,Active,Flagged (Error),[CRITICAL] Loan amount is missing in register,Manual branch check needed,Amount column was left blank in register
+10,Cyber City,Kunal Shah,-45000,2026-02-06,9812309876,Active,Flagged (Error),[CRITICAL] Negative loan amount detected (-45000). Principal cannot be negative.,loan_amount: 45000,Entered as negative in branch sheet
+11,Bandra West,Pooja Hegde,90000,2026-06-05,985001abcd,Active,Flagged (Error),"[CRITICAL] Phone number ""985001abcd"" contains corrupted letters. Rule 1: Cannot reliably guess 10 digits without guessing.",Manual branch check needed,Phone has letters in it
+13,Cyber City,Aditya Joshi,110000,31/04/2026,9765401234,Active,Flagged (Error),"[CRITICAL] Impossible calendar date: ""31/04/2026"" (Month 4 only has 30 days in 2026).",loan_date: 2026-04-30,April only has 30 days
+15,Connaught Place,[MISSING],85000,2026-05-22,9822001122,Active,Flagged (Error),[CRITICAL] Customer name is missing in register,Manual branch check needed,Customer name empty in register
+16,Salt Lake,Tanya Sen,0,2026-06-14,9833441122,Active,Flagged (Error),[CRITICAL] Loan amount cannot be zero.,Manual branch check needed,Zero principal amount

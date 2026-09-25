@@ -1,0 +1,8 @@
+branch,customer_name,loan_amount,loan_date,phone,status
+Andheri,Ramesh Kumar,50000,2025-03-12,9876543210,Active
+Andheri,Sunita Patil,45000,2025-03-05,9876543210,Active
+Andheri West,Faisal Sheikh,120000,2025-03-05,9876543210,Closed
+Borivali,Ganesh Yadav,250000,2025-03-12,9988776655,Closed
+Thane,Anita Deshmukh,600000,2025-04-01,9812345670,Active
+Thane,Ramesh Kumar,70000,2025-04-10,9876543210,Active
+Borivali,Nisha Verma,110000,2025-03-20,9871122334,Active
